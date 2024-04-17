@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fetching Posts</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        background: #ffffff;
+      }
+
+      #posts {
+        margin-top: 50px;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+        justify-content: center;
+        padding: 0px;
+      }
+      .post {
+        margin: 20px;
+        border: 1px solid #c7c7c7;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 10px 8px rgba(87, 87, 87, 0.1);
+        width: 350px;
+        height: 180px;
+        transition: transform 0.3s ease-in-out;
+      }
+      .post:hover {
+        transform: translateY(-10px);
+        cursor: pointer;
+        background-color: #0466c8;
+        border: 1px solid rgb(0, 0, 0);
+      }
+      .post h2 {
+        color: #0466c8;
+        margin-top: 0;
+        border-bottom: 1px solid #b8b8b8;
+        padding-bottom: 10px;
+      }
+
+      .post p {
+        color: #0466c8;
+        margin-bottom: 0;
+        text-align: justify;
+      }
+      .post:hover h2 {
+        border-bottom: 1px solid rgb(255, 255, 255);
+      }
+
+      .post:hover h2,
+      .post:hover p {
+        color: #ffff;
+      }
+
+      @media (max-width: 420px) {
+        .post {
+          width: 350px;
+          height: 230px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <ul id="posts"></ul>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        fetch("https://jsonplaceholder.typicode.com/posts")
+          .then((response) => response.json())
+          .then((data) => {
+            const postsCard = document.getElementById("posts");
+
+            data.forEach((post) => {
+              if (post.title.length <= 28) {
+                const item = document.createElement("li");
+                item.classList.add("post");
+                item.innerHTML = `
+               
+          <h2>${post.title}</h2>
+          <p>${post.body}</p>
+        `;
+                postsCard.appendChild(item);
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
+      });
+    </script>
+  </body>
+</html>
