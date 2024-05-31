@@ -1,4 +1,3 @@
-let num;
 const cat = document.getElementById("category");
 const diff = document.getElementById("difficulty");
 const startBtn = document.querySelector(".start-btn");
@@ -7,39 +6,113 @@ const quiz = document.querySelector(".quiz");
 let questions = [];
 let currentQuestion = 0;
 let score = 0;
+const errorPopup = document.getElementById("error-popup");
+const closePopupBtn = document.getElementById("close-popup");
+const errorMessage = document.getElementById("error-message");
 
-startQuiz = async () => {
-  loadingQuestions();
-  if (diff.value == "easy") num = 5;
-  else if (diff.value == "medium") num = 15;
-  else if (diff.value == "hard") num = 25;
-  else num = 10;
-  console.log(diff.value);
-  const url = `https://opentdb.com/api.php?amount=${num}&category=${cat.value}&difficulty=${diff.value}&type=multiple`;
+const showErrorPopup = (message) => {
+  errorMessage.textContent = message;
+  errorPopup.classList.remove("hide");
+};
+
+closePopupBtn.addEventListener("click", () => {
+  errorPopup.classList.add("hide");
+});
+
+const errorOccur = () => {
+  closePopupBtn.addEventListener("click", () => {
+    window.location.reload();
+  });
+};
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadCategories();
+  loadDifficulty();
+});
+
+const loadCategories = async () => {
+  const url = "http://localhost:8081/categories";
 
   try {
     const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.response_code === 0) {
-      questions = data.results;
-      startScreen.classList.add("hide");
-      quiz.classList.remove("hide");
-
-      showQuestion();
-    } else {
-      console.error("Error fetching questions:", data.response_message);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
     }
+
+    const data = await response.json();
+    console.log("Categories:", data);
+
+    data.forEach((category) => {
+      const option = document.createElement("option");
+      option.value = category.categoryId;
+      option.textContent = category.name;
+      cat.appendChild(option);
+    });
   } catch (error) {
-    console.error("Error fetching questions:", error);
+    console.error("Error fetching categories:", error);
+    showErrorPopup("Error fetching categories. Try again later!");
+    errorOccur();
+    return;
   }
 };
 
-function decodeHTMLEntities(text) {
-  const textarea = document.createElement("textarea");
-  textarea.innerHTML = text;
-  return textarea.value;
-}
+const loadDifficulty = () => {
+  const difficulties = ["easy", "medium", "hard"];
+  const diffSelect = document.getElementById("difficulty");
+
+  difficulties.forEach((difficulty) => {
+    const option = document.createElement("option");
+    option.value = difficulty;
+    option.textContent =
+      difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+    diffSelect.appendChild(option);
+  });
+};
+
+const startQuiz = async () => {
+  loadingQuestions();
+
+  const categoryId = cat.value;
+  const difficulty = diff.value;
+  if (!categoryId) {
+    showErrorPopup("Please select a category!");
+    errorOccur();
+    return;
+  } else if (!difficulty) {
+    showErrorPopup("Please select a difficulty level!");
+    errorOccur();
+    return;
+  }
+  const url = `http://localhost:8081/questions/${categoryId}/${difficulty}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    if (data.length > 0) {
+      questions = data;
+      startScreen.classList.add("hide");
+      quiz.classList.remove("hide");
+      showQuestion();
+    } else {
+      showErrorPopup(
+        "No questions available for this category and difficulty level!"
+      );
+      errorOccur();
+      return;
+    }
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    showErrorPopup("Error fetching questions. Try again later!");
+    errorOccur();
+  }
+};
+
+startBtn.addEventListener("click", startQuiz);
 
 function showQuestion() {
   const opt = document.querySelector(".answer-wrapper");
@@ -48,28 +121,39 @@ function showQuestion() {
 
   const question = questions[currentQuestion];
 
-  questionText.innerHTML = decodeHTMLEntities(question.question);
+  if (!question || !question.questionText) {
+    console.error("Question or question text is undefined.");
+    return;
+  }
+
+  questionText.innerHTML = question.questionText;
   opt.innerHTML = "";
-  const correctAnswer = decodeHTMLEntities(question.correct_answer);
-  console.log(question);
-  const incorrectAnswers = question.incorrect_answers.map((answer) =>
-    decodeHTMLEntities(answer)
-  );
+
+  const correctAnswer = question.correctOption;
+  const incorrectAnswers = [
+    question.option1,
+    question.option2,
+    question.option3,
+    question.option4,
+  ].filter((option) => option !== correctAnswer);
+
   const options = [correctAnswer, ...incorrectAnswers];
   options.sort(() => Math.random() - 0.5);
+
   options.forEach((option) => {
     opt.innerHTML += `
-        <div class="answer">
-          <span class="text">${option}</span>
-          <span class="checkbox"></span>
-        </div>
-      `;
+      <div class="answer">
+        <span class="text">${option}</span>
+        <span class="checkbox"></span>
+      </div>
+    `;
   });
 
-  questionNumber.innerHTML = ` Question <span class="current">${
+  questionNumber.innerHTML = `Question <span class="current">${
     currentQuestion + 1
   }</span>
-                <span class="total">/${questions.length}</span>`;
+                              <span class="total">/${questions.length}</span>`;
+
   const answersDiv = document.querySelectorAll(".answer");
   answersDiv.forEach((answer) => {
     answer.addEventListener("click", () => {
@@ -84,62 +168,30 @@ function showQuestion() {
   });
 }
 
-const loadingQuestions = () => {
-  startBtn.innerHTML = "Loading";
-  setInterval(() => {
-    if (startBtn.innerHTML.length === 10) {
-      startBtn.innerHTML = "Loading";
-    } else {
-      startBtn.innerHTML += ".";
-    }
-  }, 500);
-};
-const submitBtn = document.querySelector(".submit"),
-  nextBtn = document.querySelector(".next");
-submitBtn.addEventListener("click", () => {
-  checkAnswer();
-});
-
-nextBtn.addEventListener("click", () => {
-  nextQuestion();
-  submitBtn.style.display = "block";
-  nextBtn.style.display = "none";
-});
-
 const checkAnswer = () => {
   const selectedAnswer = document.querySelector(".answer.selected");
 
   if (selectedAnswer) {
-    const selectedText = decodeHTMLEntities(
-      selectedAnswer.querySelector(".text").innerHTML
-    );
-    const correctText = decodeHTMLEntities(
-      questions[currentQuestion].correct_answer
-    );
+    const selectedText = selectedAnswer.querySelector(".text").innerHTML;
+    const correctText = questions[currentQuestion].correctOption;
 
     if (selectedText === correctText) {
       score++;
       selectedAnswer.classList.add("correct");
     } else {
       selectedAnswer.classList.add("wrong");
-      const correctAnswer = document
-        .querySelectorAll(".answer")
-        .forEach((answer) => {
-          if (
-            decodeHTMLEntities(answer.querySelector(".text").innerHTML) ===
-            correctText
-          ) {
-            answer.classList.add("correct");
-          }
-        });
+      document.querySelectorAll(".answer").forEach((answer) => {
+        if (answer.querySelector(".text").innerHTML === correctText) {
+          answer.classList.add("correct");
+        }
+      });
     }
   } else {
     alert("Please select an option!");
     return;
   }
 
-  const answersDiv = document.querySelectorAll(".answer");
-  answersDiv.forEach((answer) => {
+  document.querySelectorAll(".answer").forEach((answer) => {
     answer.classList.add("checked");
   });
 
@@ -155,11 +207,6 @@ const nextQuestion = () => {
     showScore();
   }
 };
-
-const endScreen = document.querySelector(".end-screen"),
-  finalScore = document.querySelector(".final-score"),
-  totalScore = document.querySelector(".total-score"),
-  scoreMessage = document.querySelector(".feedback");
 
 const showScore = () => {
   endScreen.classList.remove("hide");
@@ -182,6 +229,32 @@ const showScore = () => {
   finalScore.innerHTML = score;
   totalScore.innerHTML = `/ ${questions.length}`;
 };
+
+const loadingQuestions = () => {
+  startBtn.innerHTML = "Loading";
+  setInterval(() => {
+    if (startBtn.innerHTML.length === 10) {
+      startBtn.innerHTML = "Loading";
+    } else {
+      startBtn.innerHTML += ".";
+    }
+  }, 500);
+};
+
+const submitBtn = document.querySelector(".submit");
+const nextBtn = document.querySelector(".next");
+const endScreen = document.querySelector(".end-screen");
+const finalScore = document.querySelector(".final-score");
+const totalScore = document.querySelector(".total-score");
+const scoreMessage = document.querySelector(".feedback");
+
+submitBtn.addEventListener("click", checkAnswer);
+
+nextBtn.addEventListener("click", () => {
+  nextQuestion();
+  submitBtn.style.display = "block";
+  nextBtn.style.display = "none";
+});
 
 const restartBtn = document.querySelector(".restart");
 restartBtn.addEventListener("click", () => {

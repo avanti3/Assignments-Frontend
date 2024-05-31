@@ -24,6 +24,8 @@ body {
   font-size: 20px;
   margin-bottom: 10px;
   width: 100%;
+  position: relative;
+  z-index: 999;
   font-weight: 100;
 }
 .heading {
@@ -37,6 +39,7 @@ body {
 p {
   padding: 10px 0px;
   line-height: 27px;
+
   text-align: center;
   margin: 20px auto;
 }
@@ -51,7 +54,8 @@ select {
 }
 
 .start-btn,
-.restart {
+.restart,
+.close-btn {
   background-color: rgb(255, 145, 0);
   color: #fff;
   padding: 10px 20px;
@@ -62,8 +66,10 @@ select {
   display: block;
   margin: 40px auto;
 }
+
 .start-btn:hover,
-.restart:hover {
+.restart:hover,
+.close-btn:hover {
   background-color: burlywood;
   color: black;
   border: 1px solid black;
@@ -178,6 +184,33 @@ select {
   color: #ffffff;
 }
 
+.popup {
+  color: black;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 9px;
+  text-align: center;
+  width: 250px;
+  font-size: 18px;
+}
+
+.hide {
+  display: none;
+}
+
 @media (min-width: 1024px) {
   .container {
     max-width: 1000px;
@@ -206,10 +239,14 @@ select {
 
   .btn,
   .start-btn,
-  .restart {
+  .restart,
+  .close-btn {
     font-size: 20px;
   }
-
+  .popup-content {
+    padding: 10px;
+    width: 400px;
+  }
   .answer-wrapper .answer {
     font-size: 18px;
   }
