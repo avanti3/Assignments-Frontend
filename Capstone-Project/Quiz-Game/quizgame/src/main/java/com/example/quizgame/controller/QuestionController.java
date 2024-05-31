@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/questions")
-@CrossOrigin("http://127.0.0.1:5501")
+@CrossOrigin("http://127.0.0.1:5500")
 @Validated
 
 public class QuestionController {
