@@ -21,7 +21,7 @@ This is a Spring boot based quiz game application that allows users to play the 
 1. **Clone the repository:**
 
    ```bash
-   git clone <repository-url>
+   git clone (https://github.com/your_username/Assignments-Frontend/tree/main/Capstone-Project)
    cd quizgame
    ```
 
