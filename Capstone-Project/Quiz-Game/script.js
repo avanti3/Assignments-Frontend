@@ -129,16 +129,12 @@ function showQuestion() {
   questionText.innerHTML = question.questionText;
   opt.innerHTML = "";
 
-  const correctAnswer = question.correctOption;
-  const incorrectAnswers = [
+  const options = [
     question.option1,
     question.option2,
     question.option3,
     question.option4,
-  ].filter((option) => option !== correctAnswer);
-
-  const options = [correctAnswer, ...incorrectAnswers];
-  options.sort(() => Math.random() - 0.5);
+  ];
 
   options.forEach((option) => {
     opt.innerHTML += `
