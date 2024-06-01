@@ -5,8 +5,6 @@ import com.example.quizgame.model.Category;
 
 import com.example.quizgame.service.CategoryService;
 
-import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/categories")
 @CrossOrigin(origins = "http://127.0.0.1:5500")
+
 
 public class CategoryController {
 
@@ -31,7 +30,7 @@ public class CategoryController {
     
     // Add a new category
     @PostMapping("add")
-    public String createCategory(@RequestBody @Valid Category category) {
+    public String createCategory(@RequestBody Category category) {
         categoryService.createCategory(category);
         return "added successfully ";
     }
