@@ -5,6 +5,8 @@ import com.example.quizgame.model.Category;
 
 import com.example.quizgame.service.CategoryService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +31,7 @@ public class CategoryController {
     
     // Add a new category
     @PostMapping("add")
-    public String createCategory(@RequestBody Category category) {
+    public String createCategory(@RequestBody @Valid Category category) {
         categoryService.createCategory(category);
         return "added successfully ";
     }
