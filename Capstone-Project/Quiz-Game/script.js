@@ -88,9 +88,6 @@ const startQuiz = async () => {
   try {
     const response = await fetch(url, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
     const data = await response.json();
     if (data.length > 0) {
