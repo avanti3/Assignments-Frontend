@@ -1,0 +1,26 @@
+.App {
+  min-height: 100vh;
+  text-align: center;
+  font-family: "Arial", sans-serif;
+  background: linear-gradient(40deg, #3586ff, #ff9ee5);
+}
+
+.btn {
+  width: 20%;
+  height: 55px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 25px;
+  color: #000000;
+  cursor: pointer;
+  padding: 15px 25px;
+  background-color: #ffd4e1;
+  border-radius: 10px;
+  border: none;
+}
+.btn:hover {
+  background-color: #ffa3bf;
+  border: 1px solid;
+}
