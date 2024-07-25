@@ -2,7 +2,7 @@ import "./App.css";
 
 function App() {
   const msg = () => {
-    alert("Thankyou Avanti for clicking me!");
+    alert("You clicked the button, Avanti!");
   };
 
   return (
